@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-receiver
+  namespace: project
+  labels:
+    app: message-receiver
+spec:
+  type: ClusterIP
+  selector:
+    app: message-receiver
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 3000

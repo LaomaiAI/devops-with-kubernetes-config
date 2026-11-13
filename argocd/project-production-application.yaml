@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: project-production
+  namespace: argocd
+spec:
+  destination:
+    namespace: project
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: project/overlays/production
+    repoURL: https://github.com/LaomaiAI/devops-with-kubernetes-config.git
+    targetRevision: '4.10'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: message-receiver-config
+  namespace: project
+  labels:
+    app: message-receiver
+data:
+  PORT: "3000"

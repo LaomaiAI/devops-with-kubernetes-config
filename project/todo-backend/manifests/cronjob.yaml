@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: todo-generator
+  namespace: project
+  labels:
+    app: todo-generator
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: todo-generator
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: todo-generator
+              image: curlimages/curl:latest
+              imagePullPolicy: IfNotPresent
+              args:
+                - /bin/sh
+                - -c
+                - |
+                  LOCATION=$(curl -s -I https://en.wikipedia.org/wiki/Special:Random | grep -i "^location:" | cut -d" " -f2- | tr -d "\r")
+                  case "$LOCATION" in //*) LOCATION="https:$LOCATION";; esac
+                  curl -s -X POST -H "Content-Type: application/json" -d "{\"todo\": \"Read $LOCATION\"}" http://todo-backend/todos

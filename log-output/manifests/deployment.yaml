@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+  namespace: exercises
+  labels:
+    app: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      containers:
+        - name: log-output-writer
+          image: log-output:latest
+          imagePullPolicy: Never
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MODE
+              value: writer
+            - name: FILE_PATH
+              value: /usr/src/app/files/log.txt
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: log-output-reader
+          image: log-output:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 10
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MODE
+              value: reader
+            - name: FILE_PATH
+              value: /usr/src/app/files/log.txt
+            - name: PINGPONG_URL
+              value: http://pingpong/count
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config
+                  key: MESSAGE
+            - name: INFO_FILE_PATH
+              value: /usr/src/app/config/information.txt
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+            - name: config
+              mountPath: /usr/src/app/config
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: log-output-config

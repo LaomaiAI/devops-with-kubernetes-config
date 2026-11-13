@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Staging: every commit to main. Broadcaster only logs, it does not forward;
+# the database is not backed up here (no backup CronJob in this overlay).
+# NATS is per environment: staging uses subject todos-staging, so staging
+# messages never reach production consumers through the shared NATS queue group.
+namespace: project-staging
+resources:
+  - ../../base
+  - namespace.yaml
+# Patches are evaluated before the namespace transformer above, so their targets
+# use the namespace the manifests already carry (project).
+patches:
+  - path: broadcaster-log-only.yaml
+    target:
+      kind: Deployment
+      name: broadcaster
+      namespace: project
+  - path: broadcaster-nats-subject.yaml
+    target:
+      kind: ConfigMap
+      name: broadcaster-config
+      namespace: project
+  - path: todo-backend-nats-subject.yaml
+    target:
+      kind: ConfigMap
+      name: todo-backend-config
+      namespace: project
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: Ingress
+      name: project
+      namespace: project
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging.project.local

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: broadcaster
+  namespace: project
+  labels:
+    app: broadcaster
+spec:
+  type: ClusterIP
+  selector:
+    app: broadcaster
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 3000

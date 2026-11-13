@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Namespace and the secret are intentionally not listed: the namespace
+# is supplied per overlay, and todo-db-secret.yaml is applied outside
+# ArgoCD (see project README, Exercise 4.9).
+resources:
+- configmap.yaml
+- cronjob.yaml
+- deployment.yaml
+- service.yaml
+- todo-db-service.yaml
+- todo-db-statefulset.yaml
