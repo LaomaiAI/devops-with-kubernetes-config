@@ -50,6 +50,8 @@ spec:
               value: /usr/src/app/files/log.txt
             - name: PINGPONG_URL
               value: http://pingpong/count
+            - name: GREETER_URL
+              value: http://greeter-svc
             - name: MESSAGE
               valueFrom:
                 configMapKeyRef:
