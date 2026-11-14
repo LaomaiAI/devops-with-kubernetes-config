@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikipedia
+  namespace: exercises
+  labels:
+    app: wikipedia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikipedia
+  template:
+    metadata:
+      labels:
+        app: wikipedia
+    spec:
+      volumes:
+        - name: shared-www
+          emptyDir: {}
+      initContainers:
+        - name: fetch-kubernetes
+          image: curlimages/curl:8.10.1
+          command: ["curl", "-fsSL", "-o", "/usr/share/nginx/html/index.html", "https://en.wikipedia.org/wiki/Kubernetes"]
+          volumeMounts:
+            - name: shared-www
+              mountPath: /usr/share/nginx/html
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: shared-www
+              mountPath: /usr/share/nginx/html
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5
+        - name: random-page-sidecar
+          image: curlimages/curl:8.10.1
+          command: ["/bin/sh", "-c", "sleep $((RANDOM % 601 + 300)); curl -fsSL -o /usr/share/nginx/html/index.html https://en.wikipedia.org/wiki/Special:Random"]
+          volumeMounts:
+            - name: shared-www
+              mountPath: /usr/share/nginx/html

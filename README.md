@@ -4,6 +4,7 @@
 - argocd/：ArgoCD Application 清單（log-output、project-staging、project-production）。
 - log-output/manifests/：log-output 應用的 Kubernetes 清單（由 ArgoCD 套用）。
 - greeter/manifests/：greeter 服務的 Kubernetes 清單（兩個版本、75/25 分流 HTTPRoute），以 kubectl 套用（未納入 ArgoCD）。
+- wikipedia/manifests/：Wikipedia 應用（init container 下載 Kubernetes 頁面、sidecar 隨機換頁），以 kubectl 套用（未納入 ArgoCD）。
 - project/：project 應用的 Kustomize 設定——base（四個元件清單目錄的聚合）、overlays/staging、overlays/production。
 ## 部署流程
 - 安裝 ArgoCD 後，套用本倉庫的 Application 清單：kubectl apply -f argocd/
